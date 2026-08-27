@@ -1,19 +1,37 @@
 import { Canvas } from '@react-three/fiber';
+import { GLOBAL_CAMERA_POSITION } from '../display/cameraView';
+import type { PlanetId } from '../domain/celestialBody';
 import { SolarSystemScene } from './scene/SolarSystemScene';
 
-export function SolarSystemCanvas() {
+interface SolarSystemCanvasProps {
+  readonly selectedPlanetId: PlanetId | null;
+  readonly onSelectPlanet: (planetId: PlanetId) => void;
+}
+
+export function SolarSystemCanvas({
+  selectedPlanetId,
+  onSelectPlanet,
+}: SolarSystemCanvasProps) {
   return (
     <div
       className="canvas-container"
       role="img"
-      aria-label="Static 3D overview of the Sun and eight planets"
+      aria-label="Interactive 3D overview of the Sun and eight planets"
     >
       <Canvas
-        camera={{ position: [0, 65, 75], fov: 60, near: 0.1, far: 300 }}
+        camera={{
+          position: GLOBAL_CAMERA_POSITION,
+          fov: 60,
+          near: 0.1,
+          far: 300,
+        }}
         dpr={[1, 1.5]}
         frameloop="demand"
       >
-        <SolarSystemScene />
+        <SolarSystemScene
+          selectedPlanetId={selectedPlanetId}
+          onSelectPlanet={onSelectPlanet}
+        />
       </Canvas>
     </div>
   );
