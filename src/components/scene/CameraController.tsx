@@ -1,34 +1,30 @@
 import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useEffect, useRef, type ComponentRef } from 'react';
-import {
-  getFocusCameraPosition,
-  GLOBAL_CAMERA_POSITION,
-} from '../../display/cameraView';
-import type { DisplayPlanet } from '../../display/solarSystemDisplayModel';
+import { getFocusCameraPosition } from '../../display/cameraView';
 import type { ScenePosition } from '../../display/solarSystemDisplayModel';
 
-const GLOBAL_TARGET: ScenePosition = [0, 0, 0];
-
 interface CameraControllerProps {
-  readonly focusBody: DisplayPlanet | null;
+  readonly focusPosition: ScenePosition | null;
+  readonly focusRadius: number | null;
 }
 
-export function CameraController({ focusBody }: CameraControllerProps) {
+export function CameraController({
+  focusPosition,
+  focusRadius,
+}: CameraControllerProps) {
   const controlsRef = useRef<ComponentRef<typeof OrbitControls>>(null);
   const { camera, invalidate } = useThree();
 
   useEffect(() => {
     const controls = controlsRef.current;
 
-    if (!controls) {
+    if (!controls || !focusPosition || focusRadius === null) {
       return;
     }
 
-    const target = focusBody?.position ?? GLOBAL_TARGET;
-    const cameraPosition = focusBody
-      ? getFocusCameraPosition(focusBody)
-      : GLOBAL_CAMERA_POSITION;
+    const target = focusPosition;
+    const cameraPosition = getFocusCameraPosition(target, focusRadius);
 
     controls.target.set(...target);
     camera.position.set(...cameraPosition);
@@ -36,7 +32,7 @@ export function CameraController({ focusBody }: CameraControllerProps) {
     camera.updateProjectionMatrix();
     controls.update();
     invalidate();
-  }, [camera, focusBody, invalidate]);
+  }, [camera, focusPosition, focusRadius, invalidate]);
 
   return (
     <OrbitControls
@@ -46,7 +42,6 @@ export function CameraController({ focusBody }: CameraControllerProps) {
       makeDefault
       maxDistance={145}
       minDistance={1.5}
-      target={GLOBAL_TARGET}
     />
   );
 }

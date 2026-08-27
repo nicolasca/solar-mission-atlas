@@ -6,13 +6,17 @@ import type { PlanetId } from '../../domain/celestialBody';
 
 interface CelestialBodyMeshProps {
   readonly body: DisplayBody;
-  readonly isSelected: boolean;
+  readonly isHighlighted: boolean;
+  readonly highlightColor?: string;
+  readonly showWireframe: boolean;
   readonly onSelectPlanet: (planetId: PlanetId) => void;
 }
 
 export function CelestialBodyMesh({
   body,
-  isSelected,
+  isHighlighted,
+  highlightColor = '#8bc3ff',
+  showWireframe,
   onSelectPlanet,
 }: CelestialBodyMeshProps) {
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
@@ -44,13 +48,25 @@ export function CelestialBodyMesh({
           color={body.color}
           emissive={body.color}
           emissiveIntensity={
-            isSelected
+            isHighlighted
               ? Math.max(body.emissiveIntensity, 0.4)
               : body.emissiveIntensity
           }
           roughness={0.72}
         />
       </mesh>
+
+      {showWireframe ? (
+        <mesh scale={1.35}>
+          <sphereGeometry args={[body.displayRadius, 20, 20]} />
+          <meshBasicMaterial
+            color={highlightColor}
+            opacity={0.75}
+            transparent
+            wireframe
+          />
+        </mesh>
+      ) : null}
 
       {body.ring ? (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
@@ -74,9 +90,11 @@ export function CelestialBodyMesh({
         center
         position={[0, body.displayRadius + 0.48, 0]}
         style={{ pointerEvents: 'none' }}
+        zIndexRange={[1, 0]}
       >
         <span
-          className={`body-label body-label--${body.kind}${isSelected ? ' body-label--selected' : ''}`}
+          className={`body-label body-label--${body.kind}${isHighlighted ? ' body-label--selected' : ''}`}
+          style={isHighlighted ? { borderColor: highlightColor } : undefined}
         >
           {body.name}
         </span>

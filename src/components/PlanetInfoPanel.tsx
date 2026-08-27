@@ -2,7 +2,7 @@ import type { Planet } from '../domain/celestialBody';
 
 interface PlanetInfoPanelProps {
   readonly planet: Planet;
-  readonly onReset: () => void;
+  readonly onClose: () => void;
 }
 
 const numberFormatter = new Intl.NumberFormat('en-US');
@@ -15,15 +15,20 @@ function formatOrbitalPeriod(earthYears: number): string {
   return `${numberFormatter.format(earthYears)} Earth years`;
 }
 
-export function PlanetInfoPanel({ planet, onReset }: PlanetInfoPanelProps) {
+export function PlanetInfoPanel({ planet, onClose }: PlanetInfoPanelProps) {
   return (
     <aside
       className="planet-info"
       aria-labelledby="planet-info-title"
       aria-live="polite"
     >
-      <button className="reset-view" type="button" onClick={onReset}>
-        <span aria-hidden="true">←</span> Global view
+      <button
+        className="close-panel"
+        type="button"
+        aria-label="Close planet details"
+        onClick={onClose}
+      >
+        <span aria-hidden="true">×</span>
       </button>
 
       <p className="planet-category">{planet.category}</p>

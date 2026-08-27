@@ -54,8 +54,9 @@ canvas {
 
 .app-header,
 .scale-note,
-.planet-navigation,
-.planet-info {
+.entity-navigation,
+.planet-info,
+.mission-info {
   position: absolute;
   z-index: 10;
 }
@@ -92,10 +93,16 @@ h1 {
   font-size: 0.76rem;
 }
 
-.planet-navigation {
+.entity-navigation {
   top: clamp(8rem, 17vh, 9.5rem);
   left: clamp(1rem, 3vw, 2.5rem);
+  display: grid;
+  gap: 0.65rem;
   width: min(13.5rem, calc(100vw - 2rem));
+}
+
+.planet-navigation,
+.mission-navigation {
   padding: 0.7rem;
   border: 1px solid rgb(151 171 200 / 18%);
   border-radius: 0.7rem;
@@ -105,7 +112,8 @@ h1 {
 }
 
 .panel-label,
-.planet-category {
+.planet-category,
+.mission-category {
   margin: 0;
   color: #91a9ca;
   font-size: 0.65rem;
@@ -114,17 +122,22 @@ h1 {
   text-transform: uppercase;
 }
 
-.planet-navigation ul {
+.planet-navigation ul,
+.mission-navigation ul {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.35rem;
   padding: 0;
   margin: 0.55rem 0 0;
   list-style: none;
 }
 
+.planet-navigation ul {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .planet-navigation button,
-.reset-view {
+.mission-navigation button,
+.close-panel {
   border: 1px solid rgb(156 176 204 / 20%);
   color: #c4cedd;
   background: rgb(20 31 49 / 72%);
@@ -132,7 +145,8 @@ h1 {
   cursor: pointer;
 }
 
-.planet-navigation button {
+.planet-navigation button,
+.mission-navigation button {
   width: 100%;
   padding: 0.46rem 0.5rem;
   border-radius: 0.45rem;
@@ -143,24 +157,30 @@ h1 {
 .planet-navigation button:hover,
 .planet-navigation button:focus-visible,
 .planet-navigation button.is-selected,
-.reset-view:hover,
-.reset-view:focus-visible {
+.mission-navigation button:hover,
+.mission-navigation button:focus-visible,
+.mission-navigation button.is-selected,
+.close-panel:hover,
+.close-panel:focus-visible {
   border-color: rgb(120 170 239 / 62%);
   color: #f6f9fd;
   background: rgb(38 73 120 / 78%);
 }
 
 .planet-navigation button:focus-visible,
-.reset-view:focus-visible {
+.mission-navigation button:focus-visible,
+.close-panel:focus-visible {
   outline: 2px solid #8bc3ff;
   outline-offset: 2px;
 }
 
-.planet-navigation button.is-selected {
+.planet-navigation button.is-selected,
+.mission-navigation button.is-selected {
   box-shadow: inset 0 0 0 1px rgb(121 174 244 / 28%);
 }
 
-.planet-info {
+.planet-info,
+.mission-info {
   top: clamp(1rem, 3vw, 2.25rem);
   right: clamp(1rem, 3vw, 2.5rem);
   width: min(22rem, calc(100vw - 2rem));
@@ -174,38 +194,47 @@ h1 {
   backdrop-filter: blur(10px);
 }
 
-.reset-view {
-  display: inline-flex;
-  gap: 0.35rem;
+.close-panel {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
   align-items: center;
-  padding: 0.4rem 0.55rem;
-  margin-bottom: 1.1rem;
+  padding: 0;
   border-radius: 0.45rem;
-  font-size: 0.7rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  place-items: center;
 }
 
-.planet-info h2 {
+.planet-info h2,
+.mission-info h2 {
   margin: 0.25rem 0 0.65rem;
   font-size: clamp(1.55rem, 3vw, 2.1rem);
   font-weight: 620;
   letter-spacing: -0.035em;
 }
 
-.planet-description {
+.planet-description,
+.mission-description {
   margin: 0;
   color: #c2ccda;
   font-size: 0.82rem;
   line-height: 1.55;
 }
 
-.planet-facts {
+.planet-facts,
+.mission-facts {
   display: grid;
   gap: 0;
   margin: 1rem 0;
   border-top: 1px solid rgb(151 171 200 / 16%);
 }
 
-.planet-facts div {
+.planet-facts div,
+.mission-facts div {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 1rem;
@@ -213,17 +242,23 @@ h1 {
   border-bottom: 1px solid rgb(151 171 200 / 16%);
 }
 
-.planet-facts dt {
+.planet-facts dt,
+.mission-facts dt {
   color: #8899b0;
   font-size: 0.72rem;
 }
 
-.planet-facts dd {
+.planet-facts dd,
+.mission-facts dd {
   margin: 0;
   color: #eef3f9;
   font-size: 0.74rem;
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+.mission-facts dd {
+  max-width: 12rem;
 }
 
 .scientific-note {
@@ -243,6 +278,26 @@ h1 {
   font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.official-source {
+  display: inline-flex;
+  margin-top: 0.9rem;
+  color: #9dcaff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-underline-offset: 0.2rem;
+}
+
+.official-source:hover,
+.official-source:focus-visible {
+  color: #dcecff;
+}
+
+.official-source:focus-visible {
+  border-radius: 0.15rem;
+  outline: 2px solid #8bc3ff;
+  outline-offset: 3px;
 }
 
 .scale-note {
@@ -297,6 +352,20 @@ h1 {
   box-shadow: 0 0 0.9rem rgb(74 151 244 / 42%);
 }
 
+.mission-route-label {
+  display: inline-flex;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid;
+  border-radius: 999px;
+  color: #f7f9fc;
+  background: rgb(5 10 19 / 88%);
+  box-shadow: 0 0.25rem 0.85rem rgb(0 0 0 / 38%);
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+  user-select: none;
+}
+
 @media (max-width: 760px) {
   .app-header {
     top: 0.8rem;
@@ -307,31 +376,44 @@ h1 {
     display: none;
   }
 
-  .planet-navigation {
+  .entity-navigation {
     top: 4.8rem;
     right: 0.75rem;
     left: 0.75rem;
     width: auto;
+    gap: 0.45rem;
+  }
+
+  .planet-navigation,
+  .mission-navigation {
     padding: 0.55rem;
   }
 
-  .planet-navigation ul {
+  .planet-navigation ul,
+  .mission-navigation ul {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     margin-top: 0.4rem;
   }
 
-  .planet-navigation button {
+  .mission-navigation ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .planet-navigation button,
+  .mission-navigation button {
     padding: 0.4rem 0.3rem;
     font-size: 0.65rem;
     text-align: center;
   }
 
-  .planet-info {
-    top: 10.9rem;
+  .planet-info,
+  .mission-info {
+    top: 15.75rem;
     right: 0.75rem;
+    bottom: 6.5rem;
     left: 0.75rem;
     width: auto;
-    max-height: calc(100vh - 18rem);
+    max-height: none;
     padding: 0.85rem;
   }
 

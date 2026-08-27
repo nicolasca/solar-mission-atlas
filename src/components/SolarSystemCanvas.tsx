@@ -1,15 +1,18 @@
 import { Canvas } from '@react-three/fiber';
 import { GLOBAL_CAMERA_POSITION } from '../display/cameraView';
 import type { PlanetId } from '../domain/celestialBody';
+import type { MissionId } from '../domain/mission';
 import { SolarSystemScene } from './scene/SolarSystemScene';
 
 interface SolarSystemCanvasProps {
   readonly selectedPlanetId: PlanetId | null;
+  readonly selectedMissionId: MissionId | null;
   readonly onSelectPlanet: (planetId: PlanetId) => void;
 }
 
 export function SolarSystemCanvas({
   selectedPlanetId,
+  selectedMissionId,
   onSelectPlanet,
 }: SolarSystemCanvasProps) {
   return (
@@ -30,6 +33,7 @@ export function SolarSystemCanvas({
       >
         <SolarSystemScene
           selectedPlanetId={selectedPlanetId}
+          selectedMissionId={selectedMissionId}
           onSelectPlanet={onSelectPlanet}
         />
       </Canvas>

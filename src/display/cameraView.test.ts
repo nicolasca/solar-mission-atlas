@@ -14,7 +14,10 @@ describe('getFocusCameraPosition', () => {
       return;
     }
 
-    const cameraPosition = getFocusCameraPosition(earth);
+    const cameraPosition = getFocusCameraPosition(
+      earth.position,
+      earth.displayRadius,
+    );
     const offset = cameraPosition.map(
       (coordinate, index) => coordinate - (earth.position[index] ?? 0),
     );
@@ -22,5 +25,15 @@ describe('getFocusCameraPosition', () => {
     expect(Math.hypot(...offset)).toBeCloseTo(
       Math.max(earth.displayRadius * 8, 4),
     );
+  });
+
+  it('uses the same readable minimum offset for a mission marker', () => {
+    const markerPosition = [2, 1, -3] as const;
+    const cameraPosition = getFocusCameraPosition(markerPosition, 0.28);
+    const offset = cameraPosition.map(
+      (coordinate, index) => coordinate - (markerPosition[index] ?? 0),
+    );
+
+    expect(Math.hypot(...offset)).toBeCloseTo(4);
   });
 });
