@@ -43,6 +43,46 @@ subscription. The deployed application does not call Codex or any model API.
 
 ## Setup
 
-The application has not been scaffolded yet. Setup and verification commands
-must be added here when the initial project skeleton is created and verified.
+The scaffold has been verified with Node.js 22 and npm 10.
 
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+## Verification
+
+Format the scaffold or check its formatting:
+
+```bash
+npm run format
+npm run format:check
+```
+
+Run lint, TypeScript, and automated test checks:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+```
+
+Create and locally preview the production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+## Deployment
+
+The application builds to static assets and needs no server or environment
+secrets in Phase 1. For Vercel, use `npm run build` as the build command and
+`dist` as the output directory.
