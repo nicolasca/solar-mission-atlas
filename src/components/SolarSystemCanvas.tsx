@@ -1,16 +1,19 @@
 import { Canvas } from '@react-three/fiber';
+import { SolarSystemScene } from './scene/SolarSystemScene';
 
 export function SolarSystemCanvas() {
   return (
-    <div className="canvas-container" role="img" aria-label="Minimal 3D canvas">
-      <Canvas camera={{ position: [0, 0, 3], fov: 45 }}>
-        <color attach="background" args={['#02050b']} />
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[3, 3, 3]} intensity={2} />
-        <mesh>
-          <sphereGeometry args={[1, 32, 32]} />
-          <meshStandardMaterial color="#f4c95d" roughness={0.65} />
-        </mesh>
+    <div
+      className="canvas-container"
+      role="img"
+      aria-label="Static 3D overview of the Sun and eight planets"
+    >
+      <Canvas
+        camera={{ position: [0, 65, 75], fov: 60, near: 0.1, far: 300 }}
+        dpr={[1, 1.5]}
+        frameloop="demand"
+      >
+        <SolarSystemScene />
       </Canvas>
     </div>
   );

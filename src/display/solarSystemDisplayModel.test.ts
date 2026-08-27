@@ -1,0 +1,16 @@
+import { describe, expect, it } from 'vitest';
+import { celestialBodies } from '../data/celestialBodies';
+import { createSolarSystemDisplayModel } from './solarSystemDisplayModel';
+
+describe('createSolarSystemDisplayModel', () => {
+  it('creates one finite scene position for every scientific body record', () => {
+    const displayBodies = createSolarSystemDisplayModel(celestialBodies);
+
+    expect(displayBodies).toHaveLength(celestialBodies.length);
+
+    for (const body of displayBodies) {
+      expect(body.position.every(Number.isFinite)).toBe(true);
+      expect(body.displayRadius).toBeGreaterThan(0);
+    }
+  });
+});
