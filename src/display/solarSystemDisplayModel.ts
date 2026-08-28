@@ -11,6 +11,7 @@ interface DisplayBodyBase {
   readonly displayRadius: number;
   readonly orbitRadius: number;
   readonly position: ScenePosition;
+  readonly axialTiltRadians: number;
   readonly emissiveIntensity: number;
   readonly ring?: RingAppearance;
 }
@@ -40,6 +41,7 @@ export function createSolarSystemDisplayModel(
       color: appearance.color,
       displayRadius: toDisplayBodyRadius(body.meanRadiusKm),
       orbitRadius,
+      axialTiltRadians: ((appearance.axialTiltDegrees ?? 0) * Math.PI) / 180,
       position:
         body.kind === 'star'
           ? [0, 0, 0]

@@ -9,6 +9,7 @@ export interface RingAppearance {
 export interface BodyAppearance {
   readonly color: string;
   readonly orbitalAngleDegrees: number;
+  readonly axialTiltDegrees?: number;
   readonly emissiveIntensity?: number;
   readonly ring?: RingAppearance;
 }
@@ -27,6 +28,7 @@ export const bodyAppearance: Record<CelestialBodyId, BodyAppearance> = {
   saturn: {
     color: '#dfc78f',
     orbitalAngleDegrees: 296,
+    axialTiltDegrees: 26.7,
     ring: {
       color: '#bda879',
       innerRadiusMultiplier: 1.35,

@@ -13,4 +13,11 @@ describe('createSolarSystemDisplayModel', () => {
       expect(body.displayRadius).toBeGreaterThan(0);
     }
   });
+
+  it('keeps Saturn axial presentation in the display model', () => {
+    const displayBodies = createSolarSystemDisplayModel(celestialBodies);
+    const saturn = displayBodies.find((body) => body.id === 'saturn');
+
+    expect(saturn?.axialTiltRadians).toBeCloseTo((26.7 * Math.PI) / 180);
+  });
 });

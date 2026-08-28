@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { MissionInfoPanel } from './components/MissionInfoPanel';
 import { MissionNavigation } from './components/MissionNavigation';
 import { SolarSystemCanvas } from './components/SolarSystemCanvas';
+import { VisualAssetCredits } from './components/VisualAssetCredits';
 import { PlanetInfoPanel } from './components/PlanetInfoPanel';
 import { PlanetNavigation } from './components/PlanetNavigation';
 import { planets } from './data/celestialBodies';
@@ -104,6 +105,8 @@ function App() {
           for readability. This overview is not uniformly to scale.
         </span>
       </aside>
+
+      <VisualAssetCredits />
     </main>
   );
 }

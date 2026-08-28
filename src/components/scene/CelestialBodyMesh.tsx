@@ -1,14 +1,17 @@
 import { Html } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
-import { DoubleSide } from 'three';
+import type { Texture } from 'three';
 import type { DisplayBody } from '../../display/solarSystemDisplayModel';
 import type { PlanetId } from '../../domain/celestialBody';
+import { SaturnRings } from './SaturnRings';
 
 interface CelestialBodyMeshProps {
   readonly body: DisplayBody;
   readonly isHighlighted: boolean;
   readonly highlightColor?: string;
   readonly showWireframe: boolean;
+  readonly texture: Texture;
+  readonly ringTexture?: Texture;
   readonly onSelectPlanet: (planetId: PlanetId) => void;
 }
 
@@ -17,6 +20,8 @@ export function CelestialBodyMesh({
   isHighlighted,
   highlightColor = '#8bc3ff',
   showWireframe,
+  texture,
+  ringTexture,
   onSelectPlanet,
 }: CelestialBodyMeshProps) {
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
@@ -42,19 +47,26 @@ export function CelestialBodyMesh({
         </mesh>
       ) : null}
 
-      <mesh>
-        <sphereGeometry args={[body.displayRadius, 32, 32]} />
-        <meshStandardMaterial
-          color={body.color}
-          emissive={body.color}
-          emissiveIntensity={
-            isHighlighted
-              ? Math.max(body.emissiveIntensity, 0.4)
-              : body.emissiveIntensity
-          }
-          roughness={0.72}
-        />
-      </mesh>
+      <group rotation={[0, 0, body.axialTiltRadians]}>
+        <mesh>
+          <sphereGeometry args={[body.displayRadius, 48, 48]} />
+          {body.kind === 'star' ? (
+            <meshBasicMaterial color={body.color} map={texture} />
+          ) : (
+            <meshStandardMaterial
+              color="#ffffff"
+              emissive={body.color}
+              emissiveIntensity={isHighlighted ? 0.12 : 0}
+              map={texture}
+              roughness={0.78}
+            />
+          )}
+        </mesh>
+
+        {body.ring && ringTexture ? (
+          <SaturnRings body={body} texture={ringTexture} />
+        ) : null}
+      </group>
 
       {showWireframe ? (
         <mesh scale={1.35}>
@@ -64,24 +76,6 @@ export function CelestialBodyMesh({
             opacity={0.75}
             transparent
             wireframe
-          />
-        </mesh>
-      ) : null}
-
-      {body.ring ? (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry
-            args={[
-              body.displayRadius * body.ring.innerRadiusMultiplier,
-              body.displayRadius * body.ring.outerRadiusMultiplier,
-              64,
-            ]}
-          />
-          <meshBasicMaterial
-            color={body.ring.color}
-            opacity={0.72}
-            side={DoubleSide}
-            transparent
           />
         </mesh>
       ) : null}

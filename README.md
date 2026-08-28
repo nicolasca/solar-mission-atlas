@@ -86,3 +86,16 @@ npm run preview
 The application builds to static assets and needs no server or environment
 secrets in Phase 1. For Vercel, use `npm run build` as the build command and
 `dist` as the output directory.
+
+## Visual asset sources
+
+Planet, Sun, and Saturn-ring textures are stored locally as optimized WebP
+assets. Their source links, required credit text, provenance, and processing
+notes are available from the **Visual credits** control in the application.
+
+The textures use material from
+[NASA Science](https://science.nasa.gov/),
+[NASA's Scientific Visualization Studio](https://svs.gsfc.nasa.gov/), and
+[USGS Astrogeology](https://astrogeology.usgs.gov/). Processed or reconstructed
+assets are identified in the application. Use of agency material does not imply
+endorsement of this project.
