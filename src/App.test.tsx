@@ -1,254 +1,272 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
-import { planets } from './data/celestialBodies';
 import { missions } from './data/missions';
+import type { AtlasSceneModel } from './display/trajectoryDisplay';
+import { ephemerisEpoch, getMissionMetrics } from './domain/ephemeris';
+import { formatDistance } from './display/missionFormatting';
 
 vi.mock('./components/SolarSystemCanvas', () => ({
-  SolarSystemCanvas: () => (
+  SolarSystemCanvas: ({
+    onSelectMission,
+    resetKey,
+    visibleMissionIds,
+    model,
+  }: {
+    onSelectMission: (id: string) => void;
+    resetKey: number;
+    visibleMissionIds: string[];
+    model: AtlasSceneModel;
+  }) => (
     <div
-      role="img"
-      aria-label="Interactive 3D overview of the Sun and eight planets"
-    />
+      data-testid="scene"
+      data-reset-key={resetKey}
+      data-visible-count={visibleMissionIds.length}
+      data-earth-position={model.bodies
+        .find((body) => body.id === 'earth')
+        ?.position.join(',')}
+      data-frame-origin={model.origin?.id ?? 'sun'}
+      data-juice-position={model.missions
+        .find((mission) => mission.id === 'juice')
+        ?.physicalPosition?.join(',')}
+    >
+      <button onClick={() => onSelectMission('juice')}>
+        JUICE spacecraft in scene
+      </button>
+    </div>
   ),
 }));
+beforeEach(() => {
+  window.history.replaceState(null, '', '/');
+});
+const selectMission = (name: string) =>
+  fireEvent.click(
+    within(
+      screen.getByRole('navigation', { name: 'Browse missions' }),
+    ).getByRole('button', { name }),
+  );
 
-describe('App', () => {
-  it('provides every planet through accessible DOM controls', () => {
+describe('mission atlas', () => {
+  it('exposes the full catalogue and meaningful filter controls', () => {
     render(<App />);
-
     const navigation = screen.getByRole('navigation', {
-      name: 'Explore planets',
+      name: 'Browse missions',
     });
-    const buttons = within(navigation).getAllByRole('button');
-
-    expect(buttons).toHaveLength(8);
-    expect(buttons.map((button) => button.textContent)).toEqual(
-      planets.map((planet) => planet.name),
+    expect(within(navigation).getAllByRole('button')).toHaveLength(
+      missions.length,
+    );
+    expect(screen.getByLabelText('Search missions')).toBeInTheDocument();
+    expect(screen.getByTestId('scene')).toHaveAttribute(
+      'data-visible-count',
+      String(missions.length),
     );
   });
-
-  it('provides exactly the three featured missions through DOM controls', () => {
+  it('shows sourced scientific details and distances when a mission is selected', () => {
     render(<App />);
-
-    const navigation = screen.getByRole('navigation', {
-      name: 'Explore missions',
-    });
-    const buttons = within(navigation).getAllByRole('button');
-
-    expect(buttons).toHaveLength(3);
-    expect(buttons.map((button) => button.textContent)).toEqual(
-      missions.map((mission) => mission.name),
-    );
-  });
-
-  it('selects a planet and displays the correct scientific information', () => {
-    render(<App />);
-
-    const earthButton = screen.getByRole('button', { name: 'Earth' });
-    fireEvent.click(earthButton);
-
-    expect(earthButton).toHaveAttribute('aria-pressed', 'true');
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Earth' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Terrestrial planet')).toBeInTheDocument();
-    expect(screen.getByText('6,371 km')).toBeInTheDocument();
-    expect(screen.getByText('1 AU')).toBeInTheDocument();
-    expect(screen.getByText('365 Earth days')).toBeInTheDocument();
-    expect(screen.getByText(/transformed display scale/i)).toBeInTheDocument();
-  });
-
-  it('switches from one selected planet to another', () => {
-    render(<App />);
-
-    const earthButton = screen.getByRole('button', { name: 'Earth' });
-    const neptuneButton = screen.getByRole('button', { name: 'Neptune' });
-
-    fireEvent.click(earthButton);
-    fireEvent.click(neptuneButton);
-
-    expect(earthButton).toHaveAttribute('aria-pressed', 'false');
-    expect(neptuneButton).toHaveAttribute('aria-pressed', 'true');
-    expect(
-      screen.queryByRole('heading', { level: 2, name: 'Earth' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Neptune' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Ice giant')).toBeInTheDocument();
-    expect(screen.getByText('30.05 AU')).toBeInTheDocument();
-  });
-
-  it('unselects a planet when its selected table button is clicked again', () => {
-    render(<App />);
-
-    const earthButton = screen.getByRole('button', { name: 'Earth' });
-
-    fireEvent.click(earthButton);
-    fireEvent.click(earthButton);
-
-    expect(earthButton).toHaveAttribute('aria-pressed', 'false');
-    expect(
-      screen.queryByRole('heading', { level: 2, name: 'Earth' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('selects a mission and displays the correct mission information', () => {
-    render(<App />);
-
-    const parkerButton = screen.getByRole('button', {
+    selectMission('Parker Solar Probe');
+    const panel = screen.getByRole('complementary', {
       name: 'Parker Solar Probe',
     });
-    fireEvent.click(parkerButton);
-
-    expect(parkerButton).toHaveAttribute('aria-pressed', 'true');
+    expect(within(panel).getByText('12 August 2018')).toBeInTheDocument();
+    expect(within(panel).getByText('Distance from Earth')).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Parker Solar Probe' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('NASA')).toBeInTheDocument();
-    expect(screen.getByText('August 12, 2018')).toBeInTheDocument();
-    expect(screen.getByText('Primary mission in progress')).toBeInTheDocument();
-    expect(
-      screen.getByText("The Sun's corona and solar wind"),
+      within(panel).getByRole('heading', { name: 'Scientific findings' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /official mission source/i }),
+      within(panel).getByRole('link', { name: 'Original model & credits ↗' }),
     ).toHaveAttribute(
       'href',
-      'https://science.nasa.gov/mission/parker-solar-probe/',
+      'https://science.nasa.gov/3d-resources/parker-solar-probe/',
+    );
+    expect(window.location.hash).toBe('#mission=parker-solar-probe');
+    expect(
+      within(panel).queryByText('Expected arrival'),
+    ).not.toBeInTheDocument();
+  });
+  it('places the scientific arrival directly after launch, rather than the next gravity assist', () => {
+    render(<App />);
+    selectMission('JUICE');
+    const panel = screen.getByRole('complementary', { name: 'JUICE' });
+    const launchRow = within(panel).getByText('Launch').parentElement!;
+    const arrivalRow =
+      within(panel).getByText('Expected arrival').parentElement!;
+    expect(launchRow.nextElementSibling).toBe(arrivalRow);
+    expect(within(arrivalRow).getByText('July 2031')).toHaveAttribute(
+      'datetime',
+      '2031-07',
+    );
+    expect(within(arrivalRow).getByRole('link')).toHaveAttribute(
+      'href',
+      'https://www.esa.int/Science_Exploration/Space_Science/Juice/Juice_factsheet',
     );
     expect(
-      screen.getByText(/not the mission’s real trajectory/i),
+      within(arrivalRow).getByText('Jupiter · orbit insertion'),
     ).toBeInTheDocument();
   });
 
-  it('switches from one selected mission to another', () => {
+  it('synchronises the time slider, planets, spacecraft and physical distances', () => {
     render(<App />);
-
-    const juiceButton = screen.getByRole('button', { name: 'JUICE' });
-    const clipperButton = screen.getByRole('button', {
-      name: 'Europa Clipper',
+    selectMission('JUICE');
+    const scene = screen.getByTestId('scene');
+    const previousEarth = scene.getAttribute('data-earth-position');
+    const previousProbe = scene.getAttribute('data-juice-position');
+    fireEvent.change(screen.getByLabelText('Trajectory date'), {
+      target: { value: '2027-01-01' },
     });
-
-    fireEvent.click(juiceButton);
-    fireEvent.click(clipperButton);
-
-    expect(juiceButton).toHaveAttribute('aria-pressed', 'false');
-    expect(clipperButton).toHaveAttribute('aria-pressed', 'true');
+    expect(scene.getAttribute('data-earth-position')).not.toBe(previousEarth);
+    expect(scene.getAttribute('data-juice-position')).not.toBe(previousProbe);
+    const panel = screen.getByRole('complementary', { name: 'JUICE' });
+    const distance = getMissionMetrics(
+      'juice',
+      '2027-01-01T00:00:00',
+    )!.earthDistanceKm;
     expect(
-      screen.queryByRole('heading', { level: 2, name: 'JUICE' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Europa Clipper' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('October 14, 2024')).toBeInTheDocument();
-    expect(screen.getByText('Europa, a moon of Jupiter')).toBeInTheDocument();
-  });
-
-  it('unselects a mission when its selected button is clicked again', () => {
-    render(<App />);
-
-    const juiceButton = screen.getByRole('button', { name: 'JUICE' });
-
-    fireEvent.click(juiceButton);
-    fireEvent.click(juiceButton);
-
-    expect(juiceButton).toHaveAttribute('aria-pressed', 'false');
-    expect(
-      screen.queryByRole('heading', { level: 2, name: 'JUICE' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('keeps planet and mission selection mutually exclusive', () => {
-    render(<App />);
-
-    const earthButton = screen.getByRole('button', { name: 'Earth' });
-    const juiceButton = screen.getByRole('button', { name: 'JUICE' });
-
-    fireEvent.click(earthButton);
-    fireEvent.click(juiceButton);
-
-    expect(earthButton).toHaveAttribute('aria-pressed', 'false');
-    expect(juiceButton).toHaveAttribute('aria-pressed', 'true');
-    expect(
-      screen.queryByRole('heading', { level: 2, name: 'Earth' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'JUICE' }),
-    ).toBeInTheDocument();
-
-    fireEvent.click(earthButton);
-
-    expect(earthButton).toHaveAttribute('aria-pressed', 'true');
-    expect(juiceButton).toHaveAttribute('aria-pressed', 'false');
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Earth' }),
+      within(panel).getByText(formatDistance(distance)),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { level: 2, name: 'JUICE' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('clears a planet selection through the close control', () => {
-    render(<App />);
-
-    const marsButton = screen.getByRole('button', { name: 'Mars' });
-    fireEvent.click(marsButton);
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Close planet details' }),
+      within(panel).getByText(/Interpolated within the sampled JPL ephemeris/),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Reference date' }));
+    expect(screen.getByLabelText('Trajectory date')).toHaveValue(
+      ephemerisEpoch.slice(0, 10),
     );
-
-    expect(marsButton).toHaveAttribute('aria-pressed', 'false');
-    expect(
-      screen.queryByRole('heading', { level: 2, name: 'Mars' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Close planet details' }),
-    ).not.toBeInTheDocument();
+    expect(scene.getAttribute('data-earth-position')).toBe(previousEarth);
   });
 
-  it('clears a mission selection through the close control', () => {
+  it('switches physical frames and resets time and frame when selecting another mission', () => {
     render(<App />);
-
-    const clipperButton = screen.getByRole('button', {
-      name: 'Europa Clipper',
+    selectMission('JUICE');
+    fireEvent.change(screen.getByLabelText('Trajectory reference frame'), {
+      target: { value: 'earth' },
     });
-    fireEvent.click(clipperButton);
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Close mission details' }),
+    expect(screen.getByTestId('scene')).toHaveAttribute(
+      'data-frame-origin',
+      'earth',
     );
-
-    expect(clipperButton).toHaveAttribute('aria-pressed', 'false');
-    expect(
-      screen.queryByRole('heading', { level: 2, name: 'Europa Clipper' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Close mission details' }),
-    ).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Trajectory reference frame'), {
+      target: { value: 'target' },
+    });
+    expect(screen.getByTestId('scene')).toHaveAttribute(
+      'data-frame-origin',
+      'jupiter',
+    );
+    fireEvent.change(screen.getByLabelText('Trajectory date'), {
+      target: { value: '2027-01-01' },
+    });
+    selectMission('Psyche');
+    expect(screen.getByTestId('scene')).toHaveAttribute(
+      'data-frame-origin',
+      'sun',
+    );
+    expect(screen.getByLabelText('Trajectory date')).toHaveValue(
+      ephemerisEpoch.slice(0, 10),
+    );
+    expect(screen.getByText(/Partial coverage:/)).toBeInTheDocument();
   });
-
-  it('clears the selection when Escape is pressed', () => {
+  it('connects direct scene clicks to the same mission panel', () => {
     render(<App />);
-
-    const venusButton = screen.getByRole('button', { name: 'Venus' });
-    fireEvent.click(venusButton);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'JUICE spacecraft in scene' }),
+    );
+    expect(
+      screen.getByRole('heading', { name: 'JUICE', level: 2 }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'JUICE' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+  it('requests a new camera focus when reselecting the same probe and resets overview', () => {
+    render(<App />);
+    selectMission('JUICE');
+    const key = Number(
+      screen.getByTestId('scene').getAttribute('data-reset-key'),
+    );
+    selectMission('JUICE');
+    expect(screen.getByTestId('scene')).toHaveAttribute(
+      'data-reset-key',
+      String(key + 1),
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Overview/ }));
+    expect(
+      screen.queryByRole('heading', { name: 'JUICE', level: 2 }),
+    ).not.toBeInTheDocument();
+    expect(window.location.hash).toBe('');
+  });
+  it('filters both list and scene, clearing a selected mission hidden by the filter', () => {
+    render(<App />);
+    selectMission('JUICE');
+    fireEvent.change(screen.getByLabelText('Search missions'), {
+      target: { value: 'parker' },
+    });
+    expect(screen.getByTestId('scene')).toHaveAttribute(
+      'data-visible-count',
+      '1',
+    );
+    expect(
+      screen.queryByRole('heading', { name: 'JUICE', level: 2 }),
+    ).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Search missions'), {
+      target: { value: 'nonexistent' },
+    });
+    expect(
+      screen.getByText('No missions match these filters.'),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(screen.getByTestId('scene')).toHaveAttribute(
+      'data-visible-count',
+      String(missions.length),
+    );
+  });
+  it('navigates previous/next within filtered missions', () => {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Search missions'), {
+      target: { value: 'voyager' },
+    });
+    selectMission('Voyager 1');
+    fireEvent.click(screen.getByRole('button', { name: 'Next mission' }));
+    expect(
+      screen.getByRole('heading', { name: 'Voyager 2', level: 2 }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Previous mission' }));
+    expect(
+      screen.getByRole('heading', { name: 'Voyager 1', level: 2 }),
+    ).toBeInTheDocument();
+  });
+  it('does not show a fabricated distance for an archival mission', () => {
+    render(<App />);
+    selectMission(missions.find((mission) => mission.id === 'maven')!.name);
+    const panel = screen.getByRole('complementary', {
+      name: missions.find((mission) => mission.id === 'maven')!.name,
+    });
+    expect(
+      within(panel).queryByText('Distance from Earth'),
+    ).not.toBeInTheDocument();
+    expect(
+      within(panel).getByText(/Mission complete: the map/),
+    ).toBeInTheDocument();
+  });
+  it('supports deep links and Escape dismissal', () => {
+    window.history.replaceState(null, '', '/#mission=europa-clipper');
+    render(<App />);
+    expect(
+      screen.getByRole('heading', { name: 'Europa Clipper', level: 2 }),
+    ).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
-
-    expect(venusButton).toHaveAttribute('aria-pressed', 'false');
     expect(
-      screen.queryByRole('heading', { level: 2, name: 'Venus' }),
+      screen.queryByRole('heading', { name: 'Europa Clipper', level: 2 }),
     ).not.toBeInTheDocument();
   });
-
-  it('preserves the 3D overview and its scale explanation', () => {
+  it('opens an explicit method and data limits panel', () => {
     render(<App />);
-
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Sources & methods ↗' }),
+    );
     expect(
-      screen.getByRole('img', {
-        name: 'Interactive 3D overview of the Sun and eight planets',
-      }),
+      screen.getByRole('heading', { name: 'Sources and methods' }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/not uniformly to scale/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'NASA/JPL Horizons' }),
+    ).toHaveAttribute('href', 'https://ssd.jpl.nasa.gov/horizons/');
   });
 });

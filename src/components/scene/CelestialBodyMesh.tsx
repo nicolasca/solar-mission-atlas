@@ -9,7 +9,6 @@ interface CelestialBodyMeshProps {
   readonly body: DisplayBody;
   readonly isHighlighted: boolean;
   readonly highlightColor?: string;
-  readonly showWireframe: boolean;
   readonly texture: Texture;
   readonly ringTexture?: Texture;
   readonly onSelectPlanet: (planetId: PlanetId) => void;
@@ -19,7 +18,6 @@ export function CelestialBodyMesh({
   body,
   isHighlighted,
   highlightColor = '#8bc3ff',
-  showWireframe,
   texture,
   ringTexture,
   onSelectPlanet,
@@ -67,18 +65,6 @@ export function CelestialBodyMesh({
           <SaturnRings body={body} texture={ringTexture} />
         ) : null}
       </group>
-
-      {showWireframe ? (
-        <mesh scale={1.35}>
-          <sphereGeometry args={[body.displayRadius, 20, 20]} />
-          <meshBasicMaterial
-            color={highlightColor}
-            opacity={0.75}
-            transparent
-            wireframe
-          />
-        </mesh>
-      ) : null}
 
       <Html
         center

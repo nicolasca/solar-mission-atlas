@@ -16,7 +16,7 @@ export function SceneLoadingStatus({
     return (
       <div className="scene-status scene-status--error" role="alert">
         <strong>Solar System textures could not be loaded.</strong>
-        <span>Refresh the page to try again.</span>
+        <span>Reload the page to try again.</span>
       </div>
     );
   }

@@ -7,6 +7,11 @@
 - Implement only the scope requested in the current task.
 - Do not anticipate later phases without an explicit request.
 
+## Language and interface copy
+
+- Write the README and all user-facing interface content in English.
+- Use concise, practical and scientific wording; omit slogans and marketing copy.
+
 ## Technical constraints
 
 - Use React, TypeScript, Vite, Three.js, and React Three Fiber.
@@ -50,4 +55,3 @@
 - Do not commit secrets or local credentials.
 - Do not use destructive Git commands.
 - Do not create commits unless explicitly asked.
-

@@ -12,7 +12,7 @@ export function PlanetNavigation({
   onSelectPlanet,
 }: PlanetNavigationProps) {
   return (
-    <nav className="planet-navigation" aria-label="Explore planets">
+    <nav className="planet-navigation" aria-label="Browse planets">
       <p className="panel-label">Planets</p>
       <ul>
         {planets.map((planet) => {

@@ -1,101 +1,117 @@
-# Solar Missions
+# Solar Mission Atlas
 
-Interactive 3D visualization of the Solar System and a curated selection of
-space missions.
+A 3D atlas of robotic Solar System missions, with scientific objectives,
+instruments, findings and primary sources. Built with React, strict TypeScript,
+Three.js and React Three Fiber as both a static application and a learning project.
 
-The project is primarily a learning vehicle for:
+## Features and scope
 
-- building a modern React and TypeScript application with Codex;
-- learning how to scope, instruct, steer, and review a coding agent;
-- practising Three.js through React Three Fiber;
-- modelling and presenting scientific data clearly;
-- establishing a clean, reproducible workflow from the first commit.
+- Select a spacecraft in the scene or searchable mission list to focus the camera;
+  frame its trajectory, view the outer Solar System or browse adjacent missions.
+- Move a date slider to synchronise spacecraft, planets and panel distances;
+  choose Sun-, Earth- or destination-centred trajectory views.
+- Filter by destination and status: operating, in transit, data analysis or uncertain.
+- Read mission objectives, findings, launch and expected arrival dates, milestones,
+  available distances and sources. Each mission has a shareable selection URL.
 
-## Current phase
+The catalogue covers major planetary missions and solar observatories. It is not
+exhaustive: small or poorly documented missions may be absent. Completed missions
+whose data remain under study are distinct from operating spacecraft. Statuses
+are dated assessments, not live telemetry. Arrival dates retain the precision
+of their sources and distinguish orbital insertion, rendezvous and flybys.
 
-The project is currently in **Phase 1 — visual MVP and Codex workflow**.
+## Trajectory data
 
-The first MVP contains:
+Positions come from [NASA/JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) and are
+bundled in `src/data/ephemerides.json`. The reference epoch is
+**26 September 2026, 00:00:00 TDB** (Barycentric Dynamical Time, not UTC).
+Stored coordinates are heliocentric XYZ vectors in AU, in the **J2000 ecliptic** frame,
+without aberration or light-time corrections.
 
-- the Sun and all eight planets;
-- simplified orbit visualization;
-- camera navigation and focus on a selected planet;
-- concise information for every displayed body;
-- three curated missions: Parker Solar Probe, JUICE, and Europa Clipper;
-- a static deployment compatible with Vercel.
+Lines connect sampled Horizons positions: solid before the selected date, dashed
+afterwards. Between samples, positions are linearly interpolated in TDB; the
+reference snapshot is used exactly. Planets and spacecraft share the selected
+epoch, while mission status and findings retain their documented dates. Horizons
+can combine reconstructed and predicted navigation data, including for past dates.
 
-The first MVP does **not** contain an LLM, an end-user agent, a paid API, a
-local model, a backend, or live ephemeris data.
+Planet samples span 2010–2034; cruise paths use daily samples. JUICE extends to
+July 2031 and Europa Clipper to May 2030. Other paths remain partial: Psyche ends
+in February 2029; Hayabusa2, Hera and ESCAPADE end in November 2026. Sampling does
+not resolve precise closest approaches or local orbits. Full coverage and query
+links are recorded with each entry.
 
-## Cost constraint
+Positions are never extrapolated beyond coverage. When no usable ephemeris is
+available, the marker indicates only the mission's scientific region and no
+distance is calculated. An available ephemeris does not prove operational status.
 
-Mandatory runtime and development-service cost for the MVP: **0 EUR**.
+## Calculations and display scale
 
-Codex is used as a development tool through the developer's existing ChatGPT
-subscription. The deployed application does not call Codex or any model API.
+Distances are calculated **before** visual transformations: the vector norm gives
+distance to the Sun, and the norm of the spacecraft–Earth vector difference gives
+distance to Earth. **1 AU = 149,597,870.7 km**. Approximate one-way radio delay is
+`Earth–spacecraft distance / 299,792.458 km/s`, converted to minutes.
 
-## Project documents
+For readability, radial distance becomes
+`sceneRadius = 2.5 + 4.2 × sqrt(distanceAU)` for `distanceAU > 0`; the Sun stays at
+the origin. Direction is preserved, with axes mapped `[x, y, z] → [x, z, −y]`.
+Body and spacecraft sizes are exaggerated. Crowded markers are visually offset;
+a line connects each to its physical position when known. Planetary rings mark
+mean orbital distances. **The scene is not to scale**; its display coordinates
+are never used to calculate the distances in mission panels.
 
-- [MVP scope](docs/mvp.md)
-- [Architecture](docs/architecture.md)
-- [Codex learning log](docs/learning-log.md)
-- [Instructions for coding agents](AGENTS.md)
+Relative views subtract the centre's position **at each sample's own date**:
+`relative(t) = spacecraft(t) − centre(t)`. They retain J2000 axis orientation and
+show ±60 days, clipped to available coverage. Distances use one uniform scale
+within that view; the camera and scale auto-fit when the date changes. The centre
+and spacecraft remain exaggerated symbols. Asteroid targets use schematic markers.
 
-## Setup
+## Sources and visual assets
 
-The scaffold has been verified with Node.js 22 and npm 10.
+Each mission, finding and milestone links to its source, chiefly
+[NASA Science](https://science.nasa.gov/),
+[ESA](https://www.esa.int/Science_Exploration/Space_Science),
+[JAXA / Hayabusa2](https://www.isas.jaxa.jp/missions/spacecraft/current/hayabusa2),
+[ISRO](https://www.isro.gov.in/SpacecraftMissions.html) and
+[CNSA / Tianwen-2](https://www.cnsa.gov.cn/n6758823/n6758838/c10760422/content.html).
+Ephemeris query parameters follow the
+[Horizons API documentation](https://ssd-api.jpl.nasa.gov/doc/horizons.html).
 
-Install dependencies:
+Six locally stored NASA GLB models represent seven missions (Voyager 1 and 2
+share a model). Models load on selection; their size and orientation are
+illustrative. Other spacecraft use markers. Textures come from NASA Science,
+[NASA SVS](https://svs.gsfc.nasa.gov/) and [USGS](https://astrogeology.usgs.gov/).
+The application includes credits and notes on asset transformations. No agency
+endorsement is implied.
+
+## Development and updates
+
+With Node.js 22 and npm:
 
 ```bash
-npm install
-```
-
-Start the development server:
-
-```bash
+npm ci
 npm run dev
 ```
 
-## Verification
-
-Format the scaffold or check its formatting:
+Validation:
 
 ```bash
-npm run format
 npm run format:check
-```
-
-Run lint, TypeScript, and automated test checks:
-
-```bash
 npm run lint
 npm run typecheck
 npm test
-```
-
-Create and locally preview the production build:
-
-```bash
 npm run build
-npm run preview
 ```
 
-## Deployment
+`node scripts/fetch-ephemerides.mjs` regenerates ephemerides through sequential
+JPL requests (network access required). Update the epoch and sampling windows in
+that script for a new edition; review statuses, arrivals and sources separately
+in `src/data/missions.ts`. Changing a displayed date alone does not refresh data.
 
-The application builds to static assets and needs no server or environment
-secrets in Phase 1. For Vercel, use `npm run build` as the build command and
-`dist` as the output directory.
+Static Vite application, with no runtime backend, credentials or paid API.
+Vercel: build command `npm run build`, output directory `dist`.
+Local production preview: `npm run preview`.
 
-## Visual asset sources
-
-Planet, Sun, and Saturn-ring textures are stored locally as optimized WebP
-assets. Their source links, required credit text, provenance, and processing
-notes are available from the **Visual credits** control in the application.
-
-The textures use material from
-[NASA Science](https://science.nasa.gov/),
-[NASA's Scientific Visualization Studio](https://svs.gsfc.nasa.gov/), and
-[USGS Astrogeology](https://astrogeology.usgs.gov/). Processed or reconstructed
-assets are identified in the application. Use of agency material does not imply
-endorsement of this project.
+Further documentation: [catalogue scope](docs/mission-catalogue.md),
+[ephemerides and limits](docs/ephemerides.md),
+[3D models and credits](docs/spacecraft-models.md),
+[architecture](docs/architecture.md).

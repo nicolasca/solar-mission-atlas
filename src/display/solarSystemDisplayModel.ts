@@ -1,5 +1,7 @@
 import type { CelestialBody, PlanetId } from '../domain/celestialBody';
 import { celestialBodies } from '../data/celestialBodies';
+import { getPositionAtEpoch, ephemerisEpoch } from '../domain/ephemeris';
+import { auToScene } from './ephemerisDisplay';
 import { bodyAppearance, type RingAppearance } from './bodyAppearance';
 import { toDisplayBodyRadius, toDisplayOrbitRadius } from './displayScale';
 
@@ -29,45 +31,39 @@ export type DisplayPlanet = DisplayBody & {
 
 export function createSolarSystemDisplayModel(
   bodies: readonly CelestialBody[],
+  epoch = ephemerisEpoch,
 ): readonly DisplayBody[] {
-  return bodies.map((body) => {
-    const appearance = bodyAppearance[body.id];
-    const orbitRadius = toDisplayOrbitRadius(body.meanOrbitalDistanceAu);
-    const orbitalAngleRadians =
-      (appearance.orbitalAngleDegrees * Math.PI) / 180;
+  return bodies
+    .filter((body) => getPositionAtEpoch(body.id, epoch) !== null)
+    .map((body) => {
+      const appearance = bodyAppearance[body.id];
+      const orbitRadius = toDisplayOrbitRadius(body.meanOrbitalDistanceAu);
+      const position = getPositionAtEpoch(body.id, epoch)!;
+      const displayValues: DisplayBodyBase = {
+        name: body.name,
+        color: appearance.color,
+        displayRadius: toDisplayBodyRadius(body.meanRadiusKm),
+        orbitRadius,
+        axialTiltRadians: ((appearance.axialTiltDegrees ?? 0) * Math.PI) / 180,
+        position: auToScene(position),
+        emissiveIntensity: appearance.emissiveIntensity ?? 0,
+        ...(appearance.ring ? { ring: appearance.ring } : {}),
+      };
 
-    const displayValues: DisplayBodyBase = {
-      name: body.name,
-      color: appearance.color,
-      displayRadius: toDisplayBodyRadius(body.meanRadiusKm),
-      orbitRadius,
-      axialTiltRadians: ((appearance.axialTiltDegrees ?? 0) * Math.PI) / 180,
-      position:
-        body.kind === 'star'
-          ? [0, 0, 0]
-          : [
-              Math.cos(orbitalAngleRadians) * orbitRadius,
-              0,
-              Math.sin(orbitalAngleRadians) * orbitRadius,
-            ],
-      emissiveIntensity: appearance.emissiveIntensity ?? 0,
-      ...(appearance.ring ? { ring: appearance.ring } : {}),
-    };
+      if (body.kind === 'star') {
+        return {
+          ...displayValues,
+          id: body.id,
+          kind: body.kind,
+        } satisfies DisplayBody;
+      }
 
-    if (body.kind === 'star') {
       return {
         ...displayValues,
         id: body.id,
         kind: body.kind,
       } satisfies DisplayBody;
-    }
-
-    return {
-      ...displayValues,
-      id: body.id,
-      kind: body.kind,
-    } satisfies DisplayBody;
-  });
+    });
 }
 
 export const solarSystemDisplayBodies =

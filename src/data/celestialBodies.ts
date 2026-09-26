@@ -27,7 +27,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Terrestrial planet',
     orbitalPeriodEarthYears: 0.241,
     description:
-      'The smallest planet and the closest to the Sun, with a heavily cratered surface and extreme temperature changes.',
+      'The smallest planet and the closest to the Sun, with a heavily cratered surface and extreme temperature variations.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,
@@ -43,7 +43,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Terrestrial planet',
     orbitalPeriodEarthYears: 0.615,
     description:
-      'A cloud-covered rocky planet with a dense carbon-dioxide atmosphere and the hottest surface in the Solar System.',
+      'A cloud-covered rocky planet whose dense carbon dioxide atmosphere contributes to the hottest surface in the Solar System.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,
@@ -59,7 +59,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Terrestrial planet',
     orbitalPeriodEarthYears: 1,
     description:
-      'Our home world, distinguished by liquid surface oceans and the only life currently known in the universe.',
+      'Earth has oceans of liquid water on its surface and the only life currently known in the Universe.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,
@@ -75,7 +75,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Terrestrial planet',
     orbitalPeriodEarthYears: 1.881,
     description:
-      'A cold, dusty world whose iron-rich surface gives it a reddish appearance and preserves evidence of ancient water.',
+      'A cold, dusty world whose iron-rich surface gives it a reddish colour and preserves evidence of ancient water.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,
@@ -91,7 +91,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Gas giant',
     orbitalPeriodEarthYears: 11.9,
     description:
-      'The largest planet, composed mostly of hydrogen and helium and marked by powerful storms including the Great Red Spot.',
+      'The largest planet, composed mainly of hydrogen and helium, with powerful storms including the Great Red Spot.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,
@@ -107,7 +107,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Gas giant',
     orbitalPeriodEarthYears: 29.4,
     description:
-      'A hydrogen-and-helium giant surrounded by the Solar System’s most extensive and visually prominent ring system.',
+      'A hydrogen and helium giant surrounded by the most extensive and conspicuous ring system among the planets of the Solar System.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,
@@ -123,7 +123,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Ice giant',
     orbitalPeriodEarthYears: 83.7,
     description:
-      'A pale ice giant that rotates on its side, likely after a major collision early in Solar System history.',
+      'A pale ice giant that rotates on its side, probably following a major collision early in the history of the Solar System.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,
@@ -139,7 +139,7 @@ export const celestialBodies: readonly CelestialBody[] = [
     category: 'Ice giant',
     orbitalPeriodEarthYears: 163.7,
     description:
-      'The outermost planet, a cold and windy ice giant with a deep blue appearance in visible-light imagery.',
+      'The most distant planet from the Sun, a cold, windswept ice giant with bluish colours in visible-light images.',
     sourceUrls: [
       NASA_PLANET_SIZE_SOURCE,
       NASA_PLANET_DISTANCE_SOURCE,

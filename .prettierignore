@@ -2,3 +2,8 @@ dist
 node_modules
 package-lock.json
 *.md
+
+public/models/draco/
+
+# Generated, compact ephemeris samples
+src/data/ephemerides.json
